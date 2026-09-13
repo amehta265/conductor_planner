@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "conductor-planner"
+version = "0.1.0"
+description = "VLM planner for long-horizon household manipulation on Stretch 4"
+requires-python = ">=3.10"
+dependencies = [
+    "pydantic>=2.5",
+    "numpy>=1.24",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# The three model roles are hosted API calls over plain urllib, so the base
+# install needs no ML stack and no GPU.
+#
+# `local` is only for running the GROUNDER on the 5070 Ti to avoid per-call
+# cost. Blackwell (sm_120) needs a CUDA 12.8+ torch build; an older wheel fails
+# at load with "no kernel image is available for execution on the device".
+local = ["torch>=2.7", "transformers>=4.51", "accelerate", "pillow"]
+serve = ["vllm>=0.9"]
+dev = ["pytest", "pillow"]
+
+[project.scripts]
+conductor-mock = "conductor_planner.cli:mock"
+conductor-run = "conductor_planner.cli:run"
+
+[tool.setuptools.packages.find]
+include = ["conductor_planner*"]

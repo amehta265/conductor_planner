@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+logs/
+memory_store/
+*.egg-info/
+
+# API keys -- never commit these. See keys/README.md
+keys/*.key
+!keys/*.key.example
+
+.venv/
+venv/
+build/
+install/
+log/
+.vscode/

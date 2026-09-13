@@ -1,0 +1,93 @@
+# Real deployment on the Stretch 4.
+#
+# Under that constraint -- see docs/STRETCH_SETUP.md, "Models and the GPU".
+#
+# Three roles:
+#   planner   long-horizon composition and strict JSON. The role that most
+#             rewards a strong model, and the one you should not economise on
+#             first.
+#   grounder  phrase -> pixel, for `observe`. Called once per observe, so this
+#             is where per-call cost accumulates fastest.
+#   monitor   yes/no questions about a scene, plus goal verification. Cheap
+#             questions; use a small fast model.
+#
+# Keys come from keys/anthropic.key or ANTHROPIC_API_KEY. See keys/README.md.
+task: "Go to the living room, pick up a glass, and place it on the kitchen table"
+mode: deploy
+max_steps: 30
+memory_dir: memory_store/stretch
+log_dir: logs/stretch
+include_map: semantic_map.yaml
+temperature: 0.0
+attach_images: 1
+history_window: 6
+grounding_mode: point
+assumed_object_height_m: 0.09
+
+# Memory cadence. The catalogue lives in the cached system prompt; these knobs
+# control the per-turn scoped block and when the trace is re-retrieved.
+scoped_memory: true
+retrieve_on_subgoal_change: true
+retrieve_after_failures: 3
+
+notes: |
+  This robot is a Stretch 4 with a telescoping arm mounted on the left side of
+  the base. Practical reach is about 0.8 m from the base centre and the arm
+  extends sideways, not forward: standing squarely facing a table puts the
+  surface OUT of the workspace. The waypoints in the semantic map already
+  account for this -- prefer them.
+  Drinking glasses are transparent, so the depth camera frequently returns no
+  valid depth on the glass itself. When a detection has no 3D point, look at the
+  supporting surface instead and approach from there.
+  navigate, pick_up and put_down are skills: they run in this process, they can
+  be stopped mid-motion, and a supervisor watches them while they run. pick_up
+  and put_down are local specialists -- they see only the current camera frame
+  and cannot move the base to reach something.
+
+models:
+  planner:
+    kind: anthropic
+    model: claude-sonnet-4-5
+    # api_key_file: keys/anthropic.key     # optional; resolved automatically
+  grounder:
+    kind: anthropic
+    model: claude-sonnet-4-5
+  monitor:
+    kind: anthropic
+    model: claude-haiku-4-5
+
+  # --- alternatives, all tested against the same interface -----------------
+  #
+  # OpenAI instead:
+  #   planner: {kind: openai, model: gpt-5}
+  #
+  # Grounder on the 5070 Ti, to stop paying per observe. Only a 4B-class model
+  # fits in 16 GB at bf16 with room for the vision tower -- see the setup doc.
+  #   vllm serve BAAI/RoboBrain2.5-4B --port 8001 --max-model-len 8192
+  #   grounder:
+  #     kind: openai_compat
+  #     model: BAAI/RoboBrain2.5-4B
+  #     base_url: http://localhost:8001/v1
+  #     require_key: false
+
+# Supervision of running skills. Costs are described in monitor.Supervisor;
+# the short version is that the first two tiers are free and the third is not.
+supervision:
+  tick_hz: 10.0          # free tier: gripper effort, base pose, runstop, stalls
+  ground_every_s: 1.0    # one grounder call, only if the stop predicate needs it
+  vlm_every_s: 5.0       # model call cadence IF the VLM tier is armed
+  # enable_vlm: false    # leave unset: armed only when the planner declares a
+                         # vlm_predicate. Setting it true runs a visual
+                         # "is anything going wrong" check on every skill, which
+                         # is a real per-second cost -- turn it on deliberately.
+  stall_after_s: 4.0
+
+robot:
+  kind: stretch_ros2
+  nav_action: /navigate_to_pose
+  rgb_topic: /camera/color/image_raw
+  depth_topic: /camera/aligned_depth_to_color/image_raw
+  camera_info_topic: /camera/color/camera_info
+  scan_topic: /scan
+  map_frame: map
+  base_frame: base_link

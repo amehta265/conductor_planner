@@ -1,0 +1,35 @@
+# Semantic map: named poses on top of the SLAM map you already built.
+#
+# These are STANDING poses, not object poses. Each one is a place the base can
+# actually sit with the relevant surface inside the arm's workspace -- which is
+# a stricter requirement than "a free cell near the table", and the reason the
+# planner is told to prefer waypoints over raw coordinates.
+#
+# How to fill this in on your robot: drive to each spot with teleop, get the
+# pose, and paste it. See docs/STRETCH_SETUP.md, "Recording waypoints".
+map_frame: map
+waypoints:
+  living_room:
+    pose: {x: 1.00, y: 0.50, theta: 0.00}
+    room: living room
+    description: general standing spot with a view of the seating area
+  coffee_table:
+    pose: {x: 2.20, y: 0.90, theta: 0.15}
+    room: living room
+    description: >-
+      facing the coffee table from the open side; the table surface is within
+      arm reach from here
+  kitchen:
+    pose: {x: 5.00, y: 2.00, theta: 1.57}
+    room: kitchen
+    description: kitchen entrance, doorway clear
+  kitchen_table:
+    pose: {x: 5.60, y: 2.60, theta: 1.20}
+    room: kitchen
+    description: >-
+      facing the long edge of the kitchen table; place surface is reachable at
+      lift height ~0.80 m
+  charger:
+    pose: {x: 0.00, y: 0.00, theta: 3.14}
+    room: living room
+    description: docking station

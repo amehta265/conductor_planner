@@ -1,0 +1,30 @@
+# Offline configuration: no robot, no GPU, no network, no API key.
+# Use this to develop prompts and test recovery paths.
+task: "Go to the living room, pick up a glass, and place it on the kitchen table"
+mode: deploy
+max_steps: 24
+memory_dir: memory_store/mock
+log_dir: logs/mock
+include_map: semantic_map.yaml
+scoped_memory: true
+
+models:
+  planner:
+    kind: scripted          # replaced in tests by a responder function
+    responses: []
+  grounder:
+    kind: scripted
+    responses: []
+
+supervision:
+  # 50 Hz, not the 10 Hz used on the robot: the mock skills run on a compressed
+  # clock, so the supervisor has to look proportionally more often to see the
+  # same phases. Tick COUNTS stay comparable to the real thing.
+  tick_hz: 50.0
+  ground_every_s: 1.0
+  vlm_every_s: 5.0
+  stall_after_s: 4.0
+
+robot:
+  kind: mock
+  fail_picks: 1             # the first pick comes up empty, on purpose

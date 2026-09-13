@@ -42,38 +42,12 @@ report = s_nav.stop("a person walked into the doorway")
 
 ## Architecture
 
-```
-                    ┌──────────────────────────────────────────┐
-   task string ────►│  PLANNER  (Claude, via the API)          │
-                    │  one primitive call per turn, as JSON    │
-                    └──────┬───────────────────────▲───────────┘
-                           │ PrimitiveCall         │ Observation + scoped memory
-                    ┌──────▼───────────────────────┴───────────┐
-                    │  CONDUCTOR  (executor.py)                │
-                    │  validate → guard → start → SUPERVISE    │
-                    │                    → stop → observe      │
-                    └──┬──────────┬───────────────┬────────────┘
-                       │          │               │
-       ┌───────────────▼┐ ┌───────▼────────────┐ ┌▼──────────────────┐
-       │ ANALYTIC       │ │ SKILLS (in-proc)   │ │ MONITOR           │
-       │ blocking, ms   │ │ navigate           │ │ ┌───────────────┐ │
-       │                │ │ pick_up            │ │ │ SUPERVISOR    │ │
-       │ look_at        │ │ put_down           │◄┼─┤ 10 Hz  free   │ │
-       │ observe   ─────┼─┼──► GROUNDER        │ │ │  1 Hz  ground │ │
-       │ set_gripper    │ │                    │ │ │ .2 Hz  vlm ⚠  │ │
-       │ stow           │ │ start()  poll()    │ │ └───────────────┘ │
-       │                │ │ stop() ────────────┼─┼─ post-step checks │
-       └───────┬────────┘ └───────┬────────────┘ └────────┬──────────┘
-               │                  │                       │
-       ┌───────▼──────────────────▼───────┐      ┌────────▼───────┐
-       │  ROBOT SEAM (robot/base.py)      │      │  MEMORY        │
-       │  sensing · analytic · .skill()   │      │  task traces   │
-       │  MockRobot | StretchRobot        │      │  success rules │
-       └──────────────────────────────────┘      │  failure models│
-                                                 └────────────────┘
+![One episode, end to end](docs/conductor_flow.png)
 
-   ⚠ the vlm tier is off unless the planner declares a vlm_predicate
-```
+Read it top to bottom: each dashed band is a different rate — the whole episode,
+one turn of the loop, one tick inside a running skill. Editable source:
+[`docs/conductor_flow.drawio`](docs/conductor_flow.drawio), whose second page draws
+the same ten seconds at all four supervision rates.
 
 ## The eight primitives
 

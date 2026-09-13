@@ -1,0 +1,413 @@
+<mxfile host="app.diagrams.net" agent="conductor_planner" pages="2">
+  <diagram id="conductor-main" name="Conductor — end to end">
+    <mxGraphModel dx="1536" dy="2188" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;align=left;verticalAlign=top;fontSize=14;fontColor=#000000;whiteSpace=wrap;" value="&lt;b&gt;conductor_planner — one episode, end to end (&quot;Go to the living room, pick up a glass, and place it on the kitchen table&quot;)&lt;/b&gt;&lt;br&gt;Each dashed band is a different rate:&amp;nbsp;&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(237, 237, 237));&quot;&gt;the whole episode, one turn of the loop, one tick inside a running skill.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="62" width="900" x="40" y="-10" as="geometry" />
+        </mxCell>
+        <mxCell id="band1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;dashed=1;dashPattern=8 8;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontSize=12;fontStyle=1;fontColor=#000000;" value="ONCE PER EPISODE  ·  START-UP" vertex="1">
+          <mxGeometry height="210" width="1200" x="40" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="band2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;dashed=1;dashPattern=8 8;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontSize=12;fontStyle=1;fontColor=#000000;" value="ONCE PER STEP  ·  the REPL turn — one planner call, seconds" vertex="1">
+          <mxGeometry height="600" width="1200" x="40" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="band3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;dashed=1;dashPattern=8 8;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontSize=12;fontStyle=1;fontColor=#000000;" value="WHILE ONE SKILL RUNS  ·  supervision, tick by tick" vertex="1">
+          <mxGeometry height="340" width="1200" x="40" y="930" as="geometry" />
+        </mxCell>
+        <mxCell id="band4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;dashed=1;dashPattern=8 8;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontSize=12;fontStyle=1;fontColor=#000000;" value="ONCE PER EPISODE  ·  END" vertex="1">
+          <mxGeometry height="260" width="1200" x="40" y="1300" as="geometry" />
+        </mxCell>
+        <mxCell id="n_cli" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;" value="&lt;b&gt;CLI&lt;/b&gt;&amp;nbsp; cli.py&lt;br/&gt;conductor-run &amp;lt;config.yaml&amp;gt;&lt;br/&gt;--task · --max-steps · --bootstrap · --dry-run" vertex="1">
+          <mxGeometry height="70" width="210" x="53" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="n_cfg" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;" value="&lt;b&gt;config.py&lt;/b&gt;&lt;br&gt;- YAML → object graph:&lt;br&gt;- Instantiates: models, memory, planner, grounder, monitor, conductor" vertex="1">
+          <mxGeometry height="80" width="190" x="320" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="n_cond" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;strokeWidth=2;" value="&lt;b&gt;Conductor&lt;/b&gt;&amp;nbsp; executor.py&lt;br&gt;- mode - bootstrap / deploy&lt;div&gt;- step budget&lt;/div&gt;&lt;div&gt;- monitoring knobs&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="190" x="556" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="n_planner" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=middle;spacing=6;fontSize=11;" value="&lt;b&gt;Planner&lt;/b&gt; — one VLM call per turn" vertex="1">
+          <mxGeometry height="50" width="195" x="818" y="101" as="geometry" />
+        </mxCell>
+        <mxCell id="n_ground" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=middle;spacing=6;fontSize=11;" value="&lt;b&gt;Grounder&lt;/b&gt; — phrase → pixel → 3D point" vertex="1">
+          <mxGeometry height="50" width="195" x="818" y="166" as="geometry" />
+        </mxCell>
+        <mxCell id="n_mon" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=middle;spacing=6;fontSize=11;" value="&lt;b&gt;Monitor&lt;/b&gt; — detectors + verification" vertex="1">
+          <mxGeometry height="50" width="195" x="1033" y="101" as="geometry" />
+        </mxCell>
+        <mxCell id="n_robot" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=middle;spacing=6;fontSize=11;" value="&lt;b&gt;Robot seam&lt;/b&gt; — Mock | Stretch 4 | Sprout (in the future)" vertex="1">
+          <mxGeometry height="50" width="195" x="1033" y="166" as="geometry" />
+        </mxCell>
+        <mxCell id="e_cli_cfg" edge="1" parent="1" source="n_cli" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endFill=1;" target="n_cfg">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="262.67" y="150" />
+              <mxPoint x="262.67" y="150" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4BoKtQjDxdAT7YypidVD-7" connectable="0" parent="e_cli_cfg" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Calls&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.0433" y="2" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_cfg_cond" edge="1" parent="1" source="n_cfg" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;" target="n_cond">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="553.33" y="156.27" />
+              <mxPoint x="553.33" y="156.27" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_cond_p" edge="1" parent="1" source="n_cond" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;labelBackgroundColor=#FFFFFF;entryX=-0.003;entryY=0.307;entryDx=0;entryDy=0;entryPerimeter=0;" target="4BoKtQjDxdAT7YypidVD-5" value="builds">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_cond_g" edge="1" parent="1" source="n_cond" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;entryX=0.002;entryY=0.672;entryDx=0;entryDy=0;entryPerimeter=0;" target="4BoKtQjDxdAT7YypidVD-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4BoKtQjDxdAT7YypidVD-6" connectable="0" parent="e_cond_g" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="builds" vertex="1">
+          <mxGeometry relative="1" x="0.0379" y="-1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="memcol" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontSize=12;fontStyle=1;fontColor=#000000;" value="MEMORY&amp;nbsp; memory/" vertex="1">
+          <mxGeometry height="460" width="290" x="1270" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="tm" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;" value="&lt;b&gt;TASK MEMORY&lt;/b&gt;&amp;nbsp; task_memory.py&lt;br&gt;task_traces.jsonl&lt;br&gt;&lt;br&gt;Successful compositions, with every coordinate replaced by the query that found it.&amp;nbsp;&lt;div&gt;Trace = task string + steps (pick up, navigate..)&lt;/div&gt;&lt;div&gt;Trace step = &quot;pick_up&quot; GLASS at (3,4,6)...&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="250" x="1290" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="gm" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;" value="&lt;b&gt;GLOBAL MEMORY&lt;/b&gt;&amp;nbsp; global_memory.py&lt;br&gt;global/&lt;br&gt;&lt;br&gt;- Success rules&lt;div&gt;- Named failure models with a prescribed recovery&amp;nbsp;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="190" width="250" x="1290" y="545" as="geometry" />
+        </mxCell>
+        <mxCell id="e_instantiate" edge="1" parent="1" source="n_cond" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;" target="memcol" value="instantiated once, at start-up&lt;div&gt;&lt;br/&gt;&lt;/div&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="645" y="285" />
+              <mxPoint x="1415" y="285" />
+            </Array>
+            <mxPoint x="645" y="180" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;strokeWidth=2;" value="&lt;b&gt;1 · observe(last)&lt;/b&gt;&lt;br&gt;Builds a fresh snapshot of the world using RGB-D capture, joint state, waypoints, lidar reading, and previous step result" vertex="1">
+          <mxGeometry height="62" width="330" x="330" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;strokeWidth=2;" value="&lt;b&gt;2 · planner.propose()&lt;/b&gt;&amp;nbsp; ← the one VLM call of the turn&lt;br/&gt;returns &lt;b&gt;one&lt;/b&gt; JSON PrimitiveCall: action + args + subgoal + expect + stop predicate" vertex="1">
+          <mxGeometry height="62" width="330" x="330" y="432" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;strokeWidth=2;" value="&lt;b&gt;3 · validate() + guard()&lt;/b&gt;&lt;br&gt;Validating schema then robot embodiment e.g is&amp;nbsp;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(237, 237, 237));&quot;&gt;arm stowed before driving, runstop clear, budget sane?&lt;/span&gt;" vertex="1">
+          <mxGeometry height="62" width="330" x="330" y="519" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;strokeWidth=2;" value="&lt;b&gt;4 · execute()&lt;/b&gt;&lt;br&gt;&lt;b&gt;analytic&lt;/b&gt; — Blocking calls - look_at / observe /&amp;nbsp; set_gripper / stow&lt;br&gt;&lt;b&gt;skill&lt;/b&gt; — navigate / pick_up / put_down" vertex="1">
+          <mxGeometry height="62" width="330" x="330" y="606" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;strokeWidth=2;" value="&lt;b&gt;5 · observe() again&lt;/b&gt;&lt;br/&gt;any base motion or contact &lt;b&gt;clears every grounded point&lt;/b&gt;, so a stale coordinate can never pose as live evidence" vertex="1">
+          <mxGeometry height="62" width="330" x="330" y="693" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;strokeWidth=2;" value="&lt;b&gt;6 · monitor.check()&lt;/b&gt;&amp;nbsp; against the fresh observation&lt;br&gt;free state detectors → the declared stop predicate → post-conditions." vertex="1">
+          <mxGeometry height="62" width="330" x="330" y="780" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="s1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;endArrow=block;" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" edge="1" parent="1" source="s2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;endArrow=block;" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e34" edge="1" parent="1" source="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;endArrow=block;" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e45" edge="1" parent="1" source="s4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;endArrow=block;" target="s5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e56" edge="1" parent="1" source="s5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;endArrow=block;" target="s6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_loop" edge="1" parent="1" source="s6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;labelBackgroundColor=#FFFFFF;" target="s1" value="next turn — verdict is injected into the prompt">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="429" y="870" />
+              <mxPoint x="170" y="870" />
+              <mxPoint x="170" y="325" />
+              <mxPoint x="495" y="325" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_reject" edge="1" parent="1" source="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;labelBackgroundColor=#FFFFFF;entryX=0.004;entryY=0.651;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="s1" value="&lt;b&gt;rejected&lt;/b&gt;&lt;div&gt;&amp;nbsp;the planner is told why.&lt;br&gt;No motion happened.&lt;/div&gt;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="330" y="552" />
+              <mxPoint x="238" y="552" />
+              <mxPoint x="238" y="378" />
+              <mxPoint x="331.3" y="378" />
+            </Array>
+            <mxPoint x="365" y="552" as="sourcePoint" />
+            <mxPoint x="365" y="378" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="d1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;" value="&lt;b&gt;CHECK TO SEE, Is call is done&amp;nbsp;&lt;/b&gt;→&amp;nbsp;&lt;b&gt;Monitor.verify_goal()&lt;/b&gt;&lt;br&gt;one VLM look at a fresh frame." vertex="1">
+          <mxGeometry height="70" width="321" x="740" y="519" as="geometry" />
+        </mxCell>
+        <mxCell id="d2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;" value="&lt;b&gt;false_success&lt;/b&gt;&lt;br/&gt;the claim is rejected, the failure is named in Global Memory, and the loop carries on" vertex="1">
+          <mxGeometry height="59" width="290" x="740" y="643" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s3_d1" edge="1" parent="1" source="s3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;endArrow=block;exitX=1;exitY=0.5;" target="d1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="716" y="550" />
+              <mxPoint x="716" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_d1_d2" edge="1" parent="1" source="d1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;labelBackgroundColor=#FFFFFF;exitX=0.451;exitY=0.976;exitDx=0;exitDy=0;exitPerimeter=0;" target="d2" value="">
+          <mxGeometry relative="1" x="-0.301" y="40" as="geometry">
+            <mxPoint x="40" y="-36" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4BoKtQjDxdAT7YypidVD-12" connectable="0" parent="e_d1_d2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="&lt;span style=&quot;font-size: 10px; color: light-dark(rgb(237, 237, 237), rgb(246, 246, 246));&quot;&gt;claimed success, the scene says otherwise&lt;/span&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.0928" as="geometry">
+            <mxPoint y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_d2_s1" edge="1" parent="1" source="d2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;endArrow=block;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" target="s1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="700" y="655" />
+              <mxPoint x="700" y="376" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_read" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;dashed=1;labelBackgroundColor=#FFFFFF;align=right;" target="s2" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1272.6" y="455" />
+            </Array>
+            <mxPoint x="1266.67" y="458" as="sourcePoint" />
+            <mxPoint x="660" y="455" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_note" edge="1" parent="1" source="s6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;dashed=1;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.75;exitDx=0;exitDy=0;" value="every detector that fires is counted, as it happens">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="660" y="813.5" />
+              <mxPoint x="1199.3" y="813.5" />
+              <mxPoint x="1199.3" y="690" />
+            </Array>
+            <mxPoint x="662" y="813.5" as="sourcePoint" />
+            <mxPoint x="1292" y="690" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="sk" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;strokeWidth=2;" value="&lt;b&gt;SKILL OBJECT&lt;/b&gt;&amp;nbsp; skills/base.py&lt;br&gt;navigate · pick_up · put_down&lt;br&gt;&lt;br&gt;start() → poll() → stop(reason)&lt;br&gt;&lt;br&gt;&lt;div&gt;A running skill can be cut short.&lt;/div&gt;" vertex="1">
+          <mxGeometry height="150" width="240" x="80" y="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="sup" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#000000;verticalAlign=top;align=left;spacingLeft=8;spacingTop=4;fontSize=11;fontColor=#000000;" value="&lt;b&gt;monitor.Supervisor&lt;/b&gt; — one watcher per skill run, tiered by cost. The cheap tiers do nearly all the work." vertex="1">
+          <mxGeometry height="281" width="410" x="390" y="960" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=5;fontSize=10;" value="&lt;b&gt;FREE&lt;/b&gt;&amp;nbsp; every tick, &lt;b&gt;10 Hz&lt;/b&gt;&amp;nbsp; · costs nothing&lt;br/&gt;&lt;b&gt;from:&lt;/b&gt; the skill&#39;s own status — aperture, effort, base pose, runstop, elapsed, tick count&lt;br/&gt;&lt;b&gt;catches:&lt;/b&gt; empty grasp (debounced 3 settled samples), stall, timeout, structural stop predicates" vertex="1">
+          <mxGeometry height="70" width="380" x="405" y="1005" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=5;fontSize=10;" value="&lt;b&gt;GROUNDING&lt;/b&gt;&amp;nbsp; &lt;b&gt;1 Hz&lt;/b&gt;&amp;nbsp; · one grounder call&lt;br/&gt;&lt;b&gt;only when&lt;/b&gt; the stop predicate names an object (object_in_view / object_at_target)&lt;br/&gt;&lt;b&gt;from:&lt;/b&gt; a fresh RGB-D frame → Grounder&amp;nbsp;&amp;nbsp;&lt;b&gt;answers:&lt;/b&gt; is it in view / is it at the target yet" vertex="1">
+          <mxGeometry height="70" width="380" x="405" y="1085" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=5;fontSize=10;dashed=1;" value="&lt;b&gt;VLM&lt;/b&gt;&amp;nbsp; &lt;b&gt;0.2 Hz&lt;/b&gt; (every 5 s)&amp;nbsp; · one model call&amp;nbsp; · &lt;b&gt;OFF&lt;/b&gt; unless the planner declared a vlm_predicate&lt;br&gt;&lt;b&gt;from:&lt;/b&gt; one frame captured only for this check&amp;nbsp;&amp;nbsp;&lt;b&gt;answers:&lt;/b&gt; yes/no + evidence&lt;br&gt;An exception handler - not run on every tick as its too expensive!" vertex="1">
+          <mxGeometry height="70" width="380" x="405" y="1160" as="geometry" />
+        </mxCell>
+        <mxCell id="dec" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;" value="&lt;b&gt;Decision&lt;/b&gt;&lt;br/&gt;stop now, and say why&lt;br/&gt;&lt;br/&gt;PREDICATE — it worked&lt;br/&gt;MONITOR — cut short&lt;br/&gt;TIMEOUT · ERROR" vertex="1">
+          <mxGeometry height="120" width="200" x="861" y="1035" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s4_sk" edge="1" parent="1" source="s4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;labelBackgroundColor=#FFFFFF;exitX=0;exitY=0.5;entryX=0.167;entryY=0;" target="sk" value="a skill call:&lt;br/&gt;seconds, and stoppable">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="120" y="637" />
+              <mxPoint x="120" y="1000" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_sk_sup" edge="1" parent="1" source="sk" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0;entryY=0.45;" target="sup" value="status,&lt;br/&gt;every tick">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sup_dec" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;endArrow=block;entryX=0;entryY=0.5;" target="dec">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="804" y="1095" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_dec_sk" edge="1" parent="1" source="dec" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;entryX=1;entryY=0.85;" target="sk" value="stop(reason) — the first tier that fires wins">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="940" y="1250" />
+              <mxPoint x="350" y="1250" />
+              <mxPoint x="350" y="1127" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_dec_s5" edge="1" parent="1" source="dec" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=0;entryX=1;entryY=0.5;" target="s5" value="the step result goes back into the turn:&lt;br/&gt;stop cause · ticks · grounder calls · VLM calls">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="940" y="724" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="endbox" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;" value="&lt;b&gt;The episode is over&lt;/b&gt;&lt;br/&gt;done(success) that the monitor verified, done(failure), or the step budget spent" vertex="1">
+          <mxGeometry height="80" width="230" x="100" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="cons" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;strokeWidth=2;" value="&lt;b&gt;_consolidate()&lt;/b&gt; — the learning step&lt;br/&gt;this is the only moment memory is written" vertex="1">
+          <mxGeometry height="80" width="250" x="430" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="logbox" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=11;" value="&lt;b&gt;_write_log()&lt;/b&gt;&amp;nbsp; logs/&amp;lt;name&amp;gt;/episode_*.json&lt;br/&gt;every call, result and verdict — written whether or not it worked" vertex="1">
+          <mxGeometry height="70" width="250" x="430" y="1465" as="geometry" />
+        </mxCell>
+        <mxCell id="e_d1_end" edge="1" parent="1" source="d1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;entryX=0.5;entryY=0;" target="endbox" value="verified → the episode ends">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1220" y="554" />
+              <mxPoint x="1220" y="1332" />
+              <mxPoint x="215" y="1332" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_end_cons" edge="1" parent="1" source="endbox" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;endArrow=block;" target="cons">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_cons_log" edge="1" parent="1" source="cons" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;endArrow=block;" target="logbox">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_write_tm" edge="1" parent="1" source="cons" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;dashed=1;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.3;entryX=0.5;entryY=1;" target="tm" value="&lt;b&gt;written at the end:&lt;/b&gt;&amp;nbsp;on success only:&lt;br&gt;the call sequence is abstracted into a trace">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1100" y="1384" />
+              <mxPoint x="1100" y="527" />
+              <mxPoint x="1415" y="527" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_write_gm" edge="1" parent="1" source="cons" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;fontSize=10;endArrow=block;dashed=1;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.75;entryX=0.5;entryY=1;" target="gm" value="&lt;b&gt;written at the end&lt;/b&gt; — every failure&lt;br&gt;that fired gets its count bumped, so the&lt;br&gt;prompt surfaces what this robot in this&lt;br&gt;house fails at">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1150" y="1420" />
+              <mxPoint x="1150" y="790" />
+              <mxPoint x="1415" y="790" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4BoKtQjDxdAT7YypidVD-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="177" width="420" x="814" y="68" as="geometry" />
+        </mxCell>
+        <mxCell id="4BoKtQjDxdAT7YypidVD-9" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;font&gt;&lt;span style=&quot;font-size: 10px; text-wrap-mode: nowrap; color: light-dark(rgb(254, 254, 254), rgb(249, 249, 249));&quot;&gt;&lt;b&gt;Read into the prompt:&amp;nbsp;&lt;/b&gt;&lt;br&gt;- Once per episode: Everything memory knows&lt;/span&gt;&lt;/font&gt;&lt;div&gt;&lt;font&gt;&lt;span style=&quot;font-size: 10px; text-wrap-mode: nowrap; color: light-dark(rgb(254, 254, 254), rgb(249, 249, 249));&quot;&gt;- Every step - The few rules that bear on what just happened&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;font&gt;&lt;span style=&quot;font-size: 10px; text-wrap-mode: nowrap; color: light-dark(rgb(254, 254, 254), rgb(249, 249, 249));&quot;&gt;- On a new subgoal / if there have been 3 failures - swap in a different trace&lt;/span&gt;&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="65" width="347" x="838" y="393" as="geometry" />
+        </mxCell>
+        <mxCell id="4BoKtQjDxdAT7YypidVD-11" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="PRIMITIVES - Fixed set of Planner Actions&amp;nbsp;&amp;nbsp;" vertex="1">
+          <mxGeometry height="30" width="156" x="1401" y="38" as="geometry" />
+        </mxCell>
+        <mxCell id="4BoKtQjDxdAT7YypidVD-14" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;br&gt;&lt;div&gt;STOP PREDICATE:&amp;nbsp;&lt;span style=&quot;font-family: -apple-system, BlinkMacSystemFont, &amp;quot;Segoe WPC&amp;quot;, &amp;quot;Segoe UI&amp;quot;, system-ui, Ubuntu, &amp;quot;Droid Sans&amp;quot;, sans-serif; font-size: 14px; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Every skill call can declare, in structured form, how the planner will know it worked:&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="181" x="1401" y="72" as="geometry" />
+        </mxCell>
+        <mxCell id="4BoKtQjDxdAT7YypidVD-15" edge="1" parent="1" source="4BoKtQjDxdAT7YypidVD-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;innerLoopWaypoints=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" target="4BoKtQjDxdAT7YypidVD-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4BoKtQjDxdAT7YypidVD-16" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="GROUNDING: Using a VLM to convert text into pixel output which is later converted to coordinates using geometry e.g. pick glass -&amp;gt; pick at (3, 6, 7)" vertex="1">
+          <mxGeometry height="70" width="181" x="1397" y="164" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="conductor-rates" name="The rates, side by side">
+    <mxGraphModel dx="1400" dy="900" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="r0" />
+        <mxCell id="r1" parent="r0" />
+        <mxCell id="rtitle" value="&lt;b&gt;The same ten seconds, seen at four rates&lt;/b&gt;&lt;br/&gt;One pick_up, from the planner&#39;s turn down to the control tick. Tick density on each line is drawn to scale." style="text;html=1;align=left;verticalAlign=top;fontSize=14;fontColor=#000000;whiteSpace=wrap;" vertex="1" parent="r1">
+          <mxGeometry x="40" y="30" width="900" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="startmark" value="skill starts" style="text;html=1;align=left;verticalAlign=bottom;fontSize=10;fontColor=#000000;" vertex="1" parent="r1">
+          <mxGeometry x="322" y="90" width="120" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stopmark" value="skill stops" style="text;html=1;align=right;verticalAlign=bottom;fontSize=10;fontColor=#000000;" vertex="1" parent="r1">
+          <mxGeometry x="900" y="90" width="120" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="vstart" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;dashPattern=4 4;" edge="1" parent="r1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="110" as="sourcePoint" />
+            <mxPoint x="320" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vstop" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;dashPattern=4 4;" edge="1" parent="r1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1020" y="110" as="sourcePoint" />
+            <mxPoint x="1020" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <!-- lane 1 -->
+        <mxCell id="l1lab" value="&lt;b&gt;THE TURN&lt;/b&gt;&lt;br/&gt;about one per step" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#000000;whiteSpace=wrap;" vertex="1" parent="r1">
+          <mxGeometry x="40" y="130" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l1line" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;dashPattern=1 100;strokeWidth=3;" edge="1" parent="r1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="145" as="sourcePoint" />
+            <mxPoint x="1020" y="145" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l1note" value="&lt;b&gt;in:&lt;/b&gt; a fresh frame, joint state, scan digest, the last result, and the memory block&lt;br/&gt;&lt;b&gt;out:&lt;/b&gt; one JSON primitive call — and afterwards a verdict in English that lands in the next prompt&lt;br/&gt;&lt;b&gt;costs:&lt;/b&gt; one planner call, plus a grounder call if it chose observe" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=10;" vertex="1" parent="r1">
+          <mxGeometry x="1070" y="118" width="440" height="70" as="geometry" />
+        </mxCell>
+        <!-- lane 2 -->
+        <mxCell id="l2lab" value="&lt;b&gt;FREE TIER&lt;/b&gt;&lt;br/&gt;10 Hz — every tick, always on" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#000000;whiteSpace=wrap;" vertex="1" parent="r1">
+          <mxGeometry x="40" y="220" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="l2line" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;dashPattern=1 6;strokeWidth=3;" edge="1" parent="r1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="235" as="sourcePoint" />
+            <mxPoint x="1020" y="235" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l2note" value="&lt;b&gt;in:&lt;/b&gt; the skill&#39;s own status object — nothing is captured, nothing is asked&lt;br/&gt;&lt;b&gt;out:&lt;/b&gt; stop the skill. Empty grasp, stall, timeout, and any structural stop predicate&lt;br/&gt;&lt;b&gt;costs:&lt;/b&gt; nothing. A test asserts the default run spends zero model calls here" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=10;" vertex="1" parent="r1">
+          <mxGeometry x="1070" y="208" width="440" height="70" as="geometry" />
+        </mxCell>
+        <!-- lane 3 -->
+        <mxCell id="l3lab" value="&lt;b&gt;GROUNDING TIER&lt;/b&gt;&lt;br/&gt;1 Hz — only if the stop predicate names an object" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#000000;whiteSpace=wrap;" vertex="1" parent="r1">
+          <mxGeometry x="40" y="310" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="l3line" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;dashPattern=1 68;strokeWidth=3;" edge="1" parent="r1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="325" as="sourcePoint" />
+            <mxPoint x="1020" y="325" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l3note" value="&lt;b&gt;in:&lt;/b&gt; a fresh RGB-D frame → one grounder call&lt;br/&gt;&lt;b&gt;out:&lt;/b&gt; is the named object in view, or within tolerance of the target — satisfy the predicate early&lt;br/&gt;&lt;b&gt;costs:&lt;/b&gt; one grounder call per second, hard rate limited" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=10;" vertex="1" parent="r1">
+          <mxGeometry x="1070" y="298" width="440" height="70" as="geometry" />
+        </mxCell>
+        <!-- lane 4 -->
+        <mxCell id="l4lab" value="&lt;b&gt;VLM TIER&lt;/b&gt;&lt;br/&gt;0.2 Hz — off unless the planner asked for it" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#000000;whiteSpace=wrap;" vertex="1" parent="r1">
+          <mxGeometry x="40" y="400" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="l4line" style="endArrow=none;html=1;strokeColor=#000000;dashed=1;dashPattern=1 348;strokeWidth=3;" edge="1" parent="r1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="415" as="sourcePoint" />
+            <mxPoint x="1020" y="415" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l4note" value="&lt;b&gt;in:&lt;/b&gt; one frame, captured only because this tier asked for it&lt;br/&gt;&lt;b&gt;out:&lt;/b&gt; yes / no + evidence. Stops the skill only on a declared vlm_predicate, or a clear anomaly&lt;br/&gt;&lt;b&gt;costs:&lt;/b&gt; a model call and a second of latency — which is why it is the exception, not the loop" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontColor=#000000;align=left;verticalAlign=top;spacing=6;fontSize=10;dashed=1;" vertex="1" parent="r1">
+          <mxGeometry x="1070" y="388" width="440" height="70" as="geometry" />
+        </mxCell>
+        <!-- time axis -->
+        <mxCell id="axis" style="endArrow=none;html=1;strokeColor=#000000;" edge="1" parent="r1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="320" y="500" as="sourcePoint" />
+            <mxPoint x="1020" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ax0" value="0 s" style="text;html=1;align=center;fontSize=10;fontColor=#000000;" vertex="1" parent="r1">
+          <mxGeometry x="290" y="505" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ax5" value="5 s" style="text;html=1;align=center;fontSize=10;fontColor=#000000;" vertex="1" parent="r1">
+          <mxGeometry x="640" y="505" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ax10" value="10 s" style="text;html=1;align=center;fontSize=10;fontColor=#000000;" vertex="1" parent="r1">
+          <mxGeometry x="990" y="505" width="60" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="rfoot" value="Read the gaps, not the marks. The tier that catches an empty grasp fires a hundred times in this window and costs nothing; the tier that can see anything at all fires twice and costs real money. That is the whole reason supervision is split by rate: put a check on the cheapest line that can answer it, and only fall through when nothing cheaper can." style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#000000;whiteSpace=wrap;" vertex="1" parent="r1">
+          <mxGeometry x="40" y="570" width="1000" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

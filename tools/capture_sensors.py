@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Record every sensors/* topic for a few seconds, then write an HTML report.
 
-Runs on the WORKSTATION, with RobotNode already running. This is a diagnostic
+Runs on the WORKSTATION, with RobotNode and CameraRelayNode already running. This is a diagnostic
 tool for checking the sensor relays, not part of the stack -- nothing in
 agentic_robotics imports it.
 
@@ -57,7 +57,7 @@ from sensor_msgs.msg import LaserScan
 
 from agentic_robotics_interfaces.msg import Observation, RobotState
 
-from agentic_robotics.robot_node import SENSOR_RELAYS
+from agentic_robotics.robot_node import LARGE_FRAME_RELAYS, SENSOR_RELAYS
 from agentic_robotics.ros_conversions import bgr_from_image
 from agentic_robotics.ros_names import (
     OBSERVATIONS_TOPIC,
@@ -80,6 +80,14 @@ CLOCK_EXCHANGES = 40
 CAPTURE_QOS = QoSProfile(
     depth=50,
     reliability=ReliabilityPolicy.BEST_EFFORT,
+    durability=DurabilityPolicy.VOLATILE,
+)
+# LARGE_FRAME_RELAYS (the ~4 MB center frames) are carried RELIABLE by the robot
+# and CameraRelayNode, and read through a DDS participant of their own: sharing
+# this tool's network buffer with every other topic, almost none arrive.
+CAPTURE_LARGE_QOS = QoSProfile(
+    depth=50,
+    reliability=ReliabilityPolicy.RELIABLE,
     durability=DurabilityPolicy.VOLATILE,
 )
 CONFIG = Path(__file__).resolve().parent.parent / "src/agentic_robotics/config/system.yaml"
@@ -382,10 +390,10 @@ class MessageInfoExecutor(SingleThreadedExecutor):
             sub.callback(*taken)
 
 
-def make_executor():
+def make_executor(context=None):
     if hasattr(Subscription, "CallbackType"):        # Iron, Jazzy and later
-        return SingleThreadedExecutor()
-    return MessageInfoExecutor()
+        return SingleThreadedExecutor(context=context)
+    return MessageInfoExecutor(context=context)
 
 
 def measure_clock_offset(host: str) -> dict:
@@ -444,12 +452,17 @@ def combine_clock(host, before: dict, after: dict) -> dict:
 
 
 def relay_parameters() -> dict:
-    """RobotNode's parameters from system.yaml, so source topics match the node's."""
+    """RobotNode's and CameraRelayNode's parameters from system.yaml, so source
+    topics match the nodes'."""
     try:
         import yaml
-        return yaml.safe_load(CONFIG.read_text())["robot"]["ros__parameters"]
+        config = yaml.safe_load(CONFIG.read_text())
     except Exception:                               # noqa: BLE001 - use defaults
         return {}
+    parameters = {}
+    for node in ("robot", "camera_relay"):
+        parameters.update((config.get(node) or {}).get("ros__parameters") or {})
+    return parameters
 
 
 class SensorCapture(Node):
@@ -457,6 +470,10 @@ class SensorCapture(Node):
 
     def __init__(self, directory: Path, seconds: float, robot_topics: bool):
         super().__init__("sensor_capture")
+        # A second participant, only for LARGE_FRAME_RELAYS (see CAPTURE_LARGE_QOS).
+        self.large_context = rclpy.Context()
+        rclpy.init(context=self.large_context)
+        self.large_frames = Node("sensor_capture_large", context=self.large_context)
         self.directory = directory
         self.images = directory / "images"
         self.images.mkdir(parents=True, exist_ok=True)
@@ -513,11 +530,12 @@ class SensorCapture(Node):
         }
 
     def _subscribe(self, key, side, topic):
-        self.create_subscription(
+        large = key in LARGE_FRAME_RELAYS
+        (self.large_frames if large else self).create_subscription(
             self.records[key]["_message_type"],
             topic,
             partial(self.on_message, key, side),
-            CAPTURE_QOS,
+            CAPTURE_LARGE_QOS if large else CAPTURE_QOS,
             raw=True,
         )
 
@@ -666,10 +684,11 @@ def _rmw_name() -> str:
         return os.environ.get("RMW_IMPLEMENTATION", "")
 
 
-def spin_for(executor, seconds: float) -> None:
+def spin_for(executors, seconds: float) -> None:
     deadline = time.monotonic() + seconds
     while rclpy.ok() and time.monotonic() < deadline:
-        executor.spin_once(timeout_sec=0.05)
+        for executor in executors:
+            executor.spin_once(timeout_sec=0.025)
 
 
 def main() -> None:
@@ -700,15 +719,18 @@ def main() -> None:
     node = SensorCapture(directory, arguments.seconds, not arguments.stack_only)
     executor = make_executor()
     executor.add_node(node)
-    spin_for(executor, DISCOVERY_S)
+    large_executor = make_executor(node.large_context)
+    large_executor.add_node(node.large_frames)
+    executors = (executor, large_executor)
+    spin_for(executors, DISCOVERY_S)
     node.add_robot_only_topics(arguments.extra)
-    spin_for(executor, MATCH_S)
+    spin_for(executors, MATCH_S)
 
     clock_before = measure_clock_offset(arguments.robot) if arguments.robot else {}
     print(f"Recording {len(node.records)} topics for {arguments.seconds:g} s ...")
     node.start()
     try:
-        spin_for(executor, arguments.seconds)
+        spin_for(executors, arguments.seconds)
     except KeyboardInterrupt:
         pass
     node.recording = False
@@ -723,6 +745,9 @@ def main() -> None:
     )
     (directory / "capture.json").write_text(json.dumps(result))
     executor.shutdown()
+    large_executor.shutdown()
+    node.large_frames.destroy_node()
+    rclpy.shutdown(context=node.large_context)
     node.destroy_node()
     if rclpy.ok():
         rclpy.shutdown()

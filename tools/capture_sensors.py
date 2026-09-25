@@ -91,7 +91,6 @@ CENTER_CAMERA_TOPICS = (
     "/cameras_head/center/camera_info",
     "/cameras_head/center/camera_info_luxonis",
     "/cameras_head/center/image_raw/compressed",
-    "/cameras_head/center/image_raw/compressedDepth",
     "/cameras_head/center/image_raw/zstd",
 )
 # The robot prints time.time_ns() for every line it reads: one SSH session,
@@ -612,8 +611,6 @@ class SensorCapture(Node):
                 save_depth_png(message.depth, self.images / "observation_depth.png")
             else:
                 data, fmt = bytes(message.data), message.format.lower()
-                if "compresseddepth" in fmt:        # a small config header precedes the PNG
-                    data = data[max(data.find(b"\x89PNG"), 0):]
                 suffix = "jpg" if "jpeg" in fmt else ("png" if "png" in fmt else None)
                 if suffix is None:                  # a format browsers cannot show
                     raise ValueError(f"{message.format!r} frames cannot be shown in a browser")

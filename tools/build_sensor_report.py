@@ -444,9 +444,7 @@ def build_report(directory: Path) -> Path:
             names += f"<ul>{mismatched}</ul>"
         robot_only = (
             "<p class=\"sub\" style=\"margin:8px 0 0\">For robot-only topics, nothing "
-            "on the robot filled them. image_transport only fills "
-            "<code>compressedDepth</code> for depth images, so it stays silent on a "
-            "colour camera.</p>"
+            "on the robot filled them.</p>"
             if any(t["path"] == "robot" for t in silent) else ""
         )
         silent_note = (

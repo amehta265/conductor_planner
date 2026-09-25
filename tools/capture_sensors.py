@@ -90,12 +90,9 @@ HEAD_CAMERA = re.compile(r"^/cameras_head/[^/]+/image_raw/compressed$")
 CENTER_CAMERA_TOPICS = (
     "/cameras_head/center/camera_info",
     "/cameras_head/center/camera_info_luxonis",
-    "/cameras_head/center/image_raw",
     "/cameras_head/center/image_raw/compressed",
     "/cameras_head/center/image_raw/compressedDepth",
-    "/cameras_head/center/image_raw/theora",
     "/cameras_head/center/image_raw/zstd",
-    "/cameras_head/center/rotated_image",
 )
 # The robot prints time.time_ns() for every line it reads: one SSH session,
 # many round trips, so the exchange with the shortest trip bounds the offset.
@@ -162,23 +159,6 @@ def describe(message) -> dict:
             "frame": message.header.frame_id,
             "format": message.format,
             "bytes": len(message.data),
-        }
-
-    if kind == "Image":                             # raw frames (image_raw, rotated_image)
-        return {
-            "kind": "image",
-            "frame": message.header.frame_id,
-            "format": f"{message.encoding} (raw)",
-            "size": f"{message.width} x {message.height}",
-            "bytes": len(message.data),
-        }
-
-    if kind == "Packet":                            # theora: a video stream, not frames
-        return {
-            "kind": "packet",
-            "frame": message.header.frame_id,
-            "bytes": len(message.data),
-            "packetno": int(message.packetno),
         }
 
     if kind == "LaserScan":
@@ -527,7 +507,7 @@ class SensorCapture(Node):
             "_message_type": message_type,
             "_stamped": starts_with_header(message_type),
             "_shown": "source_samples" if path == "robot" else "samples",
-            "_camera": message_type.__name__ in ("CompressedImage", "Image", "Observation"),
+            "_camera": message_type.__name__ in ("CompressedImage", "Observation"),
             "_frames": [],
             "_last": None,
             "_last_frame_at": -1e9,
@@ -566,7 +546,7 @@ class SensorCapture(Node):
             try:
                 message_type = get_message(graph[topic][0])
             except (ImportError, AttributeError, ValueError) as error:
-                # e.g. theora_image_transport not installed on this machine
+                # its message package is not installed on this machine
                 self.get_logger().warning(
                     f"{topic}: cannot load {graph[topic][0]} here ({error}); skipped"
                 )
@@ -630,15 +610,12 @@ class SensorCapture(Node):
                 name = f"{stem}.png"
                 save_rgb_png(message.rgb, self.images / name)
                 save_depth_png(message.depth, self.images / "observation_depth.png")
-            elif type(message).__name__ == "Image":
-                name = f"{stem}.png"
-                save_rgb_png(message, self.images / name)
             else:
                 data, fmt = bytes(message.data), message.format.lower()
                 if "compresseddepth" in fmt:        # a small config header precedes the PNG
                     data = data[max(data.find(b"\x89PNG"), 0):]
                 suffix = "jpg" if "jpeg" in fmt else ("png" if "png" in fmt else None)
-                if suffix is None:                  # zstd and friends: browsers cannot show it
+                if suffix is None:                  # a format browsers cannot show
                     raise ValueError(f"{message.format!r} frames cannot be shown in a browser")
                 name = f"{stem}.{suffix}"
                 (self.images / name).write_bytes(data)

@@ -102,10 +102,7 @@ SENSORS = (
         "sensors/head_camera/right/camera_info")),
     ("Head camera, center", (
         "sensors/head_camera/center/image/compressed",
-        "sensors/head_camera/center/image",
-        "sensors/head_camera/center/rotated_image",
         "sensors/head_camera/center/image/zstd",
-        "sensors/head_camera/center/image/theora",
         "sensors/head_camera/center/image/compressedDepth",
         "sensors/head_camera/center/camera_info",
         "sensors/head_camera/center/camera_info_luxonis")),

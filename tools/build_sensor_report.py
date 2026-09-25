@@ -272,20 +272,10 @@ def detail_panel(record: dict) -> str:
     kind = detail.get("kind")
 
     if kind == "image":
-        size = [("size", detail["size"])] if detail.get("size") else []
         return (
-            kv([("format", detail.get("format")), ("frame_id", detail.get("frame"))]
-               + size + [("bytes/frame", f'{detail.get("bytes", 0):,}')])
+            kv([("format", detail.get("format")), ("frame_id", detail.get("frame")),
+                ("bytes/frame", f'{detail.get("bytes", 0):,}')])
             + gallery(record)
-        )
-
-    if kind == "packet":
-        return (
-            kv([("frame_id", detail.get("frame")),
-                ("bytes/packet", f'{detail.get("bytes", 0):,}'),
-                ("last packetno", detail.get("packetno"))])
-            + '<p class="empty">Theora is a video stream: single packets are not '
-            "pictures, so no frames are shown.</p>"
         )
 
     if kind == "observation":

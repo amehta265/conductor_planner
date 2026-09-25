@@ -243,7 +243,9 @@ def gallery(record: dict) -> str:
     """The saved frames for one camera, in capture order."""
     frames = record.get("frames") or []
     if not frames:
-        return '<p class="empty">Frames arrived but none were saved.</p>'
+        error = (record.get("detail") or {}).get("image_error")
+        why = f": {esc(error)}" if error else "."
+        return f'<p class="empty">Frames arrived but none were saved{why}</p>'
     cards = "".join(
         f'<figure class="frame"><img src="{esc(f["file"])}" alt="frame at '
         f'{f["at"]:.1f} s" loading="lazy">'
@@ -270,10 +272,20 @@ def detail_panel(record: dict) -> str:
     kind = detail.get("kind")
 
     if kind == "image":
+        size = [("size", detail["size"])] if detail.get("size") else []
         return (
-            kv([("format", detail.get("format")), ("frame_id", detail.get("frame")),
-                ("bytes/frame", f'{detail.get("bytes", 0):,}')])
+            kv([("format", detail.get("format")), ("frame_id", detail.get("frame"))]
+               + size + [("bytes/frame", f'{detail.get("bytes", 0):,}')])
             + gallery(record)
+        )
+
+    if kind == "packet":
+        return (
+            kv([("frame_id", detail.get("frame")),
+                ("bytes/packet", f'{detail.get("bytes", 0):,}'),
+                ("last packetno", detail.get("packetno"))])
+            + '<p class="empty">Theora is a video stream: single packets are not '
+            "pictures, so no frames are shown.</p>"
         )
 
     if kind == "observation":
@@ -440,13 +452,20 @@ def build_report(directory: Path) -> Path:
         )
         if mismatched:
             names += f"<ul>{mismatched}</ul>"
+        robot_only = (
+            "<p class=\"sub\" style=\"margin:8px 0 0\">For robot-only topics, nothing "
+            "on the robot filled them. image_transport only fills "
+            "<code>compressedDepth</code> for depth images, so it stays silent on a "
+            "colour camera.</p>"
+            if any(t["path"] == "robot" for t in silent) else ""
+        )
         silent_note = (
             f'<div class="card"><h3 class="bad">Silent topics</h3><p>{names}</p>'
             "<p class=\"sub\" style=\"margin:0\">Either the robot-side driver is not "
             "running, the source topic name in <code>system.yaml</code> is wrong, or "
             "the message type in <code>SENSOR_RELAYS</code> does not match what the "
             "publisher actually sends. Check with <code>ros2 topic type &lt;source&gt;"
-            "</code>.</p></div>"
+            f"</code>.</p>{robot_only}</div>"
         )
 
     return _write(

@@ -100,6 +100,15 @@ SENSORS = (
     ("Head camera, right (fisheye)", (
         "sensors/head_camera/right/image/compressed",
         "sensors/head_camera/right/camera_info")),
+    ("Head camera, center", (
+        "sensors/head_camera/center/image/compressed",
+        "sensors/head_camera/center/image",
+        "sensors/head_camera/center/rotated_image",
+        "sensors/head_camera/center/image/zstd",
+        "sensors/head_camera/center/image/theora",
+        "sensors/head_camera/center/image/compressedDepth",
+        "sensors/head_camera/center/camera_info",
+        "sensors/head_camera/center/camera_info_luxonis")),
     ("Lidars", ("sensors/scan",)),
     ("Line sensors", ("sensors/line_sensor/points",)),
     ("Joints", ("sensors/joint_states",)),
@@ -164,11 +173,13 @@ def sensor_groups(capture, latency):
     for topic in capture["topics"]:
         if topic["key"] in claimed or topic["key"] not in live:
             continue
-        if topic["path"] == "robot" and "/center/" in topic["topic"]:
-            name = "Head camera, center"
+        # A center topic RobotNode relays still joins the center camera's card.
+        name = "Head camera, center" if "/center/" in topic["topic"] else topic["topic"]
+        group = next((g for g in groups if g[0] == name), None)
+        if group:
+            group[1].append(topic["key"])
         else:
-            name = topic["topic"]
-        groups.append((name, [topic["key"]]))
+            groups.append((name, [topic["key"]]))
     return groups
 
 

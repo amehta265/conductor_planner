@@ -83,8 +83,20 @@ CAPTURE_QOS = QoSProfile(
     durability=DurabilityPolicy.VOLATILE,
 )
 CONFIG = Path(__file__).resolve().parent.parent / "src/agentic_robotics/config/system.yaml"
-# Head cameras the robot publishes that RobotNode does not relay (the center one).
+# Head cameras the robot publishes that RobotNode does not relay.
 HEAD_CAMERA = re.compile(r"^/cameras_head/[^/]+/image_raw/compressed$")
+# Everything the center head camera publishes. Timed on the robot side unless
+# RobotNode relays it (then it is already a relay and is skipped here).
+CENTER_CAMERA_TOPICS = (
+    "/cameras_head/center/camera_info",
+    "/cameras_head/center/camera_info_luxonis",
+    "/cameras_head/center/image_raw",
+    "/cameras_head/center/image_raw/compressed",
+    "/cameras_head/center/image_raw/compressedDepth",
+    "/cameras_head/center/image_raw/theora",
+    "/cameras_head/center/image_raw/zstd",
+    "/cameras_head/center/rotated_image",
+)
 # The robot prints time.time_ns() for every line it reads: one SSH session,
 # many round trips, so the exchange with the shortest trip bounds the offset.
 REMOTE_CLOCK = (
@@ -150,6 +162,23 @@ def describe(message) -> dict:
             "frame": message.header.frame_id,
             "format": message.format,
             "bytes": len(message.data),
+        }
+
+    if kind == "Image":                             # raw frames (image_raw, rotated_image)
+        return {
+            "kind": "image",
+            "frame": message.header.frame_id,
+            "format": f"{message.encoding} (raw)",
+            "size": f"{message.width} x {message.height}",
+            "bytes": len(message.data),
+        }
+
+    if kind == "Packet":                            # theora: a video stream, not frames
+        return {
+            "kind": "packet",
+            "frame": message.header.frame_id,
+            "bytes": len(message.data),
+            "packetno": int(message.packetno),
         }
 
     if kind == "LaserScan":
@@ -498,7 +527,7 @@ class SensorCapture(Node):
             "_message_type": message_type,
             "_stamped": starts_with_header(message_type),
             "_shown": "source_samples" if path == "robot" else "samples",
-            "_camera": message_type.__name__ in ("CompressedImage", "Observation"),
+            "_camera": message_type.__name__ in ("CompressedImage", "Image", "Observation"),
             "_frames": [],
             "_last": None,
             "_last_frame_at": -1e9,
@@ -529,11 +558,19 @@ class SensorCapture(Node):
             return
         relayed = {r["source"] for r in self.records.values()}
         wanted = [t for t in graph if HEAD_CAMERA.match(t) and t not in relayed]
+        wanted += [t for t in CENTER_CAMERA_TOPICS if t not in relayed and t not in wanted]
         for topic in wanted + [t for t in extra if t not in wanted]:
             if topic not in graph:
                 self.get_logger().warning(f"{topic} is not on the network; skipped")
                 continue
-            message_type = get_message(graph[topic][0])
+            try:
+                message_type = get_message(graph[topic][0])
+            except (ImportError, AttributeError, ValueError) as error:
+                # e.g. theora_image_transport not installed on this machine
+                self.get_logger().warning(
+                    f"{topic}: cannot load {graph[topic][0]} here ({error}); skipped"
+                )
+                continue
             self._add(topic, topic, message_type, "robot", "robot only (not relayed)")
             self._subscribe(topic, "source_samples", topic)
 
@@ -593,10 +630,18 @@ class SensorCapture(Node):
                 name = f"{stem}.png"
                 save_rgb_png(message.rgb, self.images / name)
                 save_depth_png(message.depth, self.images / "observation_depth.png")
+            elif type(message).__name__ == "Image":
+                name = f"{stem}.png"
+                save_rgb_png(message, self.images / name)
             else:
-                suffix = "jpg" if "jpeg" in message.format.lower() else "bin"
+                data, fmt = bytes(message.data), message.format.lower()
+                if "compresseddepth" in fmt:        # a small config header precedes the PNG
+                    data = data[max(data.find(b"\x89PNG"), 0):]
+                suffix = "jpg" if "jpeg" in fmt else ("png" if "png" in fmt else None)
+                if suffix is None:                  # zstd and friends: browsers cannot show it
+                    raise ValueError(f"{message.format!r} frames cannot be shown in a browser")
                 name = f"{stem}.{suffix}"
-                (self.images / name).write_bytes(bytes(message.data))
+                (self.images / name).write_bytes(data)
         except Exception as error:                   # noqa: BLE001 - diagnostic tool
             record["detail"]["image_error"] = str(error)
             return

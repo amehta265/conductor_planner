@@ -6,7 +6,8 @@ report without re-recording:
 
     python3 tools/build_sensor_report.py sensor_capture_20260919_143022
 
-Pure Python, no ROS and no plotting library: the charts are inline SVG.
+Pure Python, no ROS and no plotting library: the charts are inline SVG and
+plain HTML. The latency sections come from latency_report.py.
 """
 from __future__ import annotations
 
@@ -15,6 +16,9 @@ import html
 import json
 import math
 from pathlib import Path
+
+from latency_report import LATENCY_CSS, latency_sections, ms
+from sensor_latency import analyse
 
 CSS = """
 :root {
@@ -377,6 +381,18 @@ def build_report(directory: Path) -> Path:
     seconds = data["seconds"]
     topics = data["topics"]
     live = [t for t in topics if t["count"] > 0]
+    latency = analyse(data)
+    ages = {k: r["end_to_end"] for k, r in latency["topics"].items()}
+    slowest = max(
+        (t for t in live if ages[t["key"]]),
+        key=lambda t: ages[t["key"]]["p95"],
+        default=None,
+    )
+    worst = f'{ms(ages[slowest["key"]]["p95"])} ms' if slowest else "&ndash;"
+    worst_label = (
+        f'slowest p95 end to end, <code>{esc(short(slowest["topic"]))}</code>'
+        if slowest else "no end-to-end samples"
+    )
     silent = [t for t in topics if t["count"] == 0]
     total_rate = sum(t["bytes_per_s"] for t in topics)
 
@@ -414,6 +430,16 @@ def build_report(directory: Path) -> Path:
     silent_note = ""
     if silent:
         names = ", ".join(f'<code>{esc(t["topic"])}</code>' for t in silent)
+        mismatched = "".join(
+            f'<li><code>{esc(t["source"])}</code> is advertised as '
+            f'<code>{esc(", ".join(t["advertised"]))}</code>, not '
+            f'<code>{esc(t["type"])}</code></li>'
+            for t in silent
+            if t.get("advertised")
+            and t["type"] not in [a.replace("/msg/", "/") for a in t["advertised"]]
+        )
+        if mismatched:
+            names += f"<ul>{mismatched}</ul>"
         silent_note = (
             f'<div class="card"><h3 class="bad">Silent topics</h3><p>{names}</p>'
             "<p class=\"sub\" style=\"margin:0\">Either the robot-side driver is not "
@@ -428,12 +454,13 @@ def build_report(directory: Path) -> Path:
         f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sensor relay capture</title>
-<style>{CSS}</style></head>
+<title>Sensor latency capture</title>
+<style>{CSS}{LATENCY_CSS}</style></head>
 <body><div class="wrap">
-<h1>Sensor relay capture</h1>
-<p class="sub">{esc(data["captured_at"])} &middot; {seconds:g} second window &middot;
-every topic RobotNode publishes under <code>/sensors/</code></p>
+<h1>Sensor relay and latency capture</h1>
+<p class="sub">{esc(data["captured_at"])} &middot; {seconds:.0f} second window &middot;
+every topic RobotNode publishes under <code>/sensors/</code>, and how long each takes
+to get there from the robot</p>
 
 <div class="card"><div class="stats">
   <div class="stat"><div class="value">{len(live)} / {len(topics)}</div>
@@ -442,9 +469,12 @@ every topic RobotNode publishes under <code>/sensors/</code></p>
     <div class="label">silent</div></div>
   <div class="stat"><div class="value">{total_rate / 1e6:.1f}</div>
     <div class="label">MB/s across all relays</div></div>
+  <div class="stat"><div class="value">{worst}</div>
+    <div class="label">{worst_label}</div></div>
 </div></div>
 
 {silent_note}
+{latency_sections(data, latency)}
 
 <h2>When messages arrived</h2>
 <div class="card">{strips}<div class="row"><div class="name"></div>
